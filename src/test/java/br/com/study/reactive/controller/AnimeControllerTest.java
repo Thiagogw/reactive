@@ -1,7 +1,7 @@
-package br.com.study.reactive.service;
+package br.com.study.reactive.controller;
 
 import br.com.study.reactive.domain.Anime;
-import br.com.study.reactive.repository.AnimeRepository;
+import br.com.study.reactive.service.AnimeService;
 import br.com.study.reactive.util.AnimeCreator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.blockhound.BlockHound;
 import reactor.blockhound.BlockingOperationError;
 import reactor.core.publisher.Flux;
@@ -24,14 +23,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 @ExtendWith(SpringExtension.class)
-class AnimeServiceTest {
+class AnimeControllerTest {
 
     @InjectMocks
-    private AnimeService animeService;
+    private AnimeController animeController;
 
     @Mock
-    private AnimeRepository animeRepository;
-
+    private AnimeService animeService;
     @BeforeAll
     static void blockHoundSetup() {
         BlockHound.install();
@@ -39,10 +37,11 @@ class AnimeServiceTest {
 
     @BeforeEach
     void setup() {
-        Mockito.when(animeRepository.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
-        Mockito.when(animeRepository.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeUpdated()));
-        Mockito.when(animeRepository.save(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
-        Mockito.when(animeRepository.delete(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(animeService.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
+        Mockito.when(animeService.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeUpdated()));
+        Mockito.when(animeService.create(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(animeService.update(Mockito.any(), Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
+        Mockito.when(animeService.delete(Mockito.any())).thenReturn(Mono.empty());
     }
 
     @Test
@@ -61,9 +60,10 @@ class AnimeServiceTest {
         }
     }
 
+
     @Test
     void findAllReturnFluxOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.findAll())
+        StepVerifier.create(animeController.findAll())
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -71,32 +71,22 @@ class AnimeServiceTest {
 
     @Test
     void findByNameReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.findByName("Fullmetal Alchemist"))
+        StepVerifier.create(animeController.findByName("Fullmetal Alchemist"))
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeUpdated())
                 .verifyComplete();
     }
 
     @Test
-    void findByNameReturnMonoOfEmptyWhenFailed() {
-        Mockito.when(animeRepository.findByName("One Piece")).thenReturn(Mono.empty());
-
-        StepVerifier.create(animeService.findByName("One Piece"))
-                .expectSubscription()
-                .expectError(ResponseStatusException.class)
-                .verify();
-    }
-
-    @Test
     void createReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeService.create(Anime.builder().name("One Piece").build()))
+        StepVerifier.create(animeController.create(Anime.builder().name("One Piece").build()))
                 .expectSubscription()
                 .verifyComplete();
     }
 
     @Test
     void updateReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.update("Fullmetal Alchemist", Anime.builder().name("Fullmetal Alchemist: Botherhood").build()))
+        StepVerifier.create(animeController.update("Fullmetal Alchemist", Anime.builder().name("Fullmetal Alchemist: Botherhood").build()))
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -104,7 +94,7 @@ class AnimeServiceTest {
 
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeService.delete("Fullmetal Alchemist"))
+        StepVerifier.create(animeController.delete("Fullmetal Alchemist"))
                 .expectSubscription()
                 .verifyComplete();
     }
