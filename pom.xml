@@ -18,6 +18,8 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<blockhound.version>1.0.8.RELEASE</blockhound.version>
+		<r2dbc-mssql.version>1.0.2.RELEASE</r2dbc-mssql.version>
 	</properties>
 
 	<dependencies>
@@ -49,6 +51,18 @@
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor.tools</groupId>
+			<artifactId>blockhound</artifactId>
+			<version>${blockhound.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.r2dbc</groupId>
+			<artifactId>r2dbc-mssql</artifactId>
+			<version>${r2dbc-mssql.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

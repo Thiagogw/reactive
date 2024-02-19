@@ -5,14 +5,14 @@ spring:
     base-path: /api
   data:
     mongodb:
-      authentication-database: admin
-      uri: mongodb://localhost:27017/test
-      database: test
+      uri: mongodb://localhost:27017/anime
 
 server:
   port: 9000
   http2:
     enabled: true
+  error:
+    include-stacktrace: on_param
 
 logging:
   level:

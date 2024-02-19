@@ -1,4 +1,4 @@
-package br.com.study.reactive;
+package br.com.study.reactive.test;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
