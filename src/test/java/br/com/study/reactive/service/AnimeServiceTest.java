@@ -58,6 +58,7 @@ class AnimeServiceTest {
         Mockito.when(animeRepository.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
         Mockito.when(animeRepository.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeUpdated()));
         Mockito.when(animeRepository.save(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
+        Mockito.when(animeRepository.delete(Mockito.any())).thenReturn(Mono.empty());
     }
 
     @Test
@@ -98,6 +99,13 @@ class AnimeServiceTest {
         StepVerifier.create(animeService.update("Fullmetal Alchemist", Anime.builder().name("Fullmetal Alchemist: Botherhood").build()))
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteReturnMonoOfVoidWhenSuccessful() {
+        StepVerifier.create(animeService.delete("Fullmetal Alchemist"))
+                .expectSubscription()
                 .verifyComplete();
     }
 }
