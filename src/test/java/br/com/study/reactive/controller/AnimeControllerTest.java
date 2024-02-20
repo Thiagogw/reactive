@@ -30,6 +30,7 @@ class AnimeControllerTest {
 
     @Mock
     private AnimeService animeService;
+
     @BeforeAll
     static void blockHoundSetup() {
         BlockHound.install();
@@ -38,7 +39,7 @@ class AnimeControllerTest {
     @BeforeEach
     void setup() {
         Mockito.when(animeService.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
-        Mockito.when(animeService.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeUpdated()));
+        Mockito.when(animeService.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeFound()));
         Mockito.when(animeService.create(Mockito.any())).thenReturn(Mono.empty());
         Mockito.when(animeService.update(Mockito.any(), Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
         Mockito.when(animeService.delete(Mockito.any())).thenReturn(Mono.empty());
@@ -60,10 +61,13 @@ class AnimeControllerTest {
         }
     }
 
-
     @Test
     void findAllReturnFluxOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeController.findAll())
+        // Actions
+        Flux<Anime> flux = animeController.findAll();
+
+        // Assertions
+        StepVerifier.create(flux)
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -71,22 +75,40 @@ class AnimeControllerTest {
 
     @Test
     void findByNameReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeController.findByName("Fullmetal Alchemist"))
+        // Actions
+        Mono<Anime> mono = animeController.findByName("Fullmetal Alchemist");
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
-                .expectNext(AnimeCreator.createAnimeToBeUpdated())
+                .expectNext(AnimeCreator.createAnimeToBeFound())
                 .verifyComplete();
     }
 
     @Test
     void createReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeController.create(Anime.builder().name("One Piece").build()))
+        // Assemble
+        Anime anime = Anime.builder().name("One Piece").build();
+
+        // Actions
+        Mono<Void> mono = animeController.create(anime);
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .verifyComplete();
     }
 
     @Test
     void updateReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeController.update("Fullmetal Alchemist", Anime.builder().name("Fullmetal Alchemist: Botherhood").build()))
+        // Assemble
+        Anime anime = Anime.builder().name("Fullmetal Alchemist: Brotherhood").build();
+
+        // Actions
+        Mono<Anime> mono = animeController.update("Fullmetal Alchemist", anime);
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -94,7 +116,11 @@ class AnimeControllerTest {
 
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeController.delete("Fullmetal Alchemist"))
+        // Actions
+        Mono<Void> mono = animeController.delete("Fullmetal Alchemist");
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .verifyComplete();
     }

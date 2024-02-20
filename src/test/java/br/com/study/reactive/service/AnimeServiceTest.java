@@ -40,7 +40,7 @@ class AnimeServiceTest {
     @BeforeEach
     void setup() {
         Mockito.when(animeRepository.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
-        Mockito.when(animeRepository.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeUpdated()));
+        Mockito.when(animeRepository.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeFound()));
         Mockito.when(animeRepository.save(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
         Mockito.when(animeRepository.delete(Mockito.any())).thenReturn(Mono.empty());
     }
@@ -63,7 +63,11 @@ class AnimeServiceTest {
 
     @Test
     void findAllReturnFluxOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.findAll())
+        // Actions
+        Flux<Anime> flux = animeService.findAll();
+
+        // Assertions
+        StepVerifier.create(flux)
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -71,17 +75,26 @@ class AnimeServiceTest {
 
     @Test
     void findByNameReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.findByName("Fullmetal Alchemist"))
+        // Actions
+        Mono<Anime> mono = animeService.findByName("Fullmetal Alchemist");
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
-                .expectNext(AnimeCreator.createAnimeToBeUpdated())
+                .expectNext(AnimeCreator.createAnimeToBeFound())
                 .verifyComplete();
     }
 
     @Test
     void findByNameReturnMonoOfEmptyWhenFailed() {
+        // Assemble
         Mockito.when(animeRepository.findByName("One Piece")).thenReturn(Mono.empty());
 
-        StepVerifier.create(animeService.findByName("One Piece"))
+        // Actions
+        Mono<Anime> mono = animeService.findByName("One Piece");
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .expectError(ResponseStatusException.class)
                 .verify();
@@ -89,14 +102,28 @@ class AnimeServiceTest {
 
     @Test
     void createReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeService.create(Anime.builder().name("One Piece").build()))
+        // Assemble
+        Anime anime = Anime.builder().name("One Piece").build();
+
+        // Actions
+        Mono<Void> mono = animeService.create(anime);
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .verifyComplete();
     }
 
     @Test
     void updateReturnMonoOfAnimeWhenSuccessful() {
-        StepVerifier.create(animeService.update("Fullmetal Alchemist", Anime.builder().name("Fullmetal Alchemist: Botherhood").build()))
+        // Assemble
+        Anime anime = Anime.builder().name("Fullmetal Alchemist: Brotherhood").build();
+
+        // Actions
+        Mono<Anime> mono = animeService.update("Fullmetal Alchemist", anime);
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
@@ -104,7 +131,11 @@ class AnimeServiceTest {
 
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
-        StepVerifier.create(animeService.delete("Fullmetal Alchemist"))
+        // Actions
+        Mono<Void> mono = animeService.delete("Fullmetal Alchemist");
+
+        // Assertions
+        StepVerifier.create(mono)
                 .expectSubscription()
                 .verifyComplete();
     }
