@@ -36,7 +36,6 @@ public class AnimeController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public Mono<Anime> create(@RequestBody Anime anime) {
         return animeService.create(anime);
     }
