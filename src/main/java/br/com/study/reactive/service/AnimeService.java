@@ -20,7 +20,7 @@ public class AnimeService {
     public Flux<AnimeResponse> findAll() {
         return animeRepository.findAll()
                 .flatMap(anime -> {
-                    Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
                             .flatMap(episode -> {
                                         EpisodeResponse episodeResponse = EpisodeResponse.builder()
                                                 .name(episode.getName())
@@ -31,18 +31,18 @@ public class AnimeService {
                                     }
                             );
 
-                    return Mono.just(AnimeResponse.builder()
-                            .name(anime.getName())
-                            .episodes(episodeResponses)
-                            .build());
-
+                    return episodesResponses.collectList()
+                            .map(episodes -> AnimeResponse.builder()
+                                    .name(anime.getName())
+                                    .episodes(episodes)
+                                    .build());
                 });
     }
 
     public Mono<AnimeResponse> findByName(String name) {
         return animeRepository.findByName(name)
                 .flatMap(anime -> {
-                    Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
                             .flatMap(episode -> {
                                         EpisodeResponse episodeResponse = EpisodeResponse.builder()
                                                 .name(episode.getName())
@@ -53,17 +53,17 @@ public class AnimeService {
                                     }
                             );
 
-                    return Mono.just(AnimeResponse.builder()
-                            .name(anime.getName())
-                            .episodes(episodeResponses)
-                            .build());
-
+                    return episodesResponses.collectList()
+                            .map(episodes -> AnimeResponse.builder()
+                                    .name(anime.getName())
+                                    .episodes(episodes)
+                                    .build());
                 });
     }
 
     public Mono<AnimeResponse> create(Anime anime) {
         return animeRepository.save(anime).flatMap(savedAnime -> {
-            Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+            Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
                     .flatMap(episode -> {
                                 EpisodeResponse episodeResponse = EpisodeResponse.builder()
                                         .name(episode.getName())
@@ -74,10 +74,11 @@ public class AnimeService {
                             }
                     );
 
-            return Mono.just(AnimeResponse.builder()
-                    .name(anime.getName())
-                    .episodes(episodeResponses)
-                    .build());
+            return episodesResponses.collectList()
+                    .map(episodes -> AnimeResponse.builder()
+                            .name(anime.getName())
+                            .episodes(episodes)
+                            .build());
         });
     }
 
@@ -86,7 +87,7 @@ public class AnimeService {
                 .flatMap(currentAnime -> animeRepository.save(anime)
                         .flatMap(updatedAnime -> {
 
-                            Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(currentAnime.getName())
+                            Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(currentAnime.getName())
                                     .flatMap(episode -> {
                                                 EpisodeResponse episodeResponse = EpisodeResponse.builder()
                                                         .name(episode.getName())
@@ -97,10 +98,11 @@ public class AnimeService {
                                             }
                                     );
 
-                            return Mono.just(AnimeResponse.builder()
-                                    .name(updatedAnime.getName())
-                                    .episodes(episodeResponses)
-                                    .build());
+                            return episodesResponses.collectList()
+                                    .map(episodes -> AnimeResponse.builder()
+                                            .name(anime.getName())
+                                            .episodes(episodes)
+                                            .build());
                         })
                 );
     }
@@ -121,10 +123,11 @@ public class AnimeService {
                                     }
                             );
 
-                    return Mono.just(AnimeResponse.builder()
-                            .name(anime.getName())
-                            .episodes(episodesResponses)
-                            .build());
+                    return episodesResponses.collectList()
+                            .map(episodes -> AnimeResponse.builder()
+                                    .name(anime.getName())
+                                    .episodes(episodes)
+                                    .build());
                 });
     }
 }
