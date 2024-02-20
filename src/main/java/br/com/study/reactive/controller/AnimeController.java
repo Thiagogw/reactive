@@ -1,6 +1,7 @@
 package br.com.study.reactive.controller;
 
 import br.com.study.reactive.domain.Anime;
+import br.com.study.reactive.dto.AnimeResponse;
 import br.com.study.reactive.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,27 +27,27 @@ public class AnimeController {
     private final AnimeService animeService;
 
     @GetMapping
-    public Flux<Anime> findAll() {
+    public Flux<AnimeResponse> findAll() {
         return animeService.findAll();
     }
 
     @GetMapping("/{name}")
-    public Mono<Anime> findByName(@PathVariable String name) {
+    public Mono<AnimeResponse> findByName(@PathVariable String name) {
         return animeService.findByName(name);
     }
 
     @PostMapping
-    public Mono<Anime> create(@RequestBody Anime anime) {
+    public Mono<AnimeResponse> create(@RequestBody Anime anime) {
         return animeService.create(anime);
     }
 
     @PutMapping("/{name}")
-    public Mono<Anime> update(@PathVariable String name, @RequestBody Anime anime) {
+    public Mono<AnimeResponse> update(@PathVariable String name, @RequestBody Anime anime) {
         return animeService.update(name, anime);
     }
 
     @DeleteMapping("/{name}")
-    public Mono<Anime> delete(@PathVariable String name) {
+    public Mono<AnimeResponse> delete(@PathVariable String name) {
         return animeService.delete(name);
     }
 }

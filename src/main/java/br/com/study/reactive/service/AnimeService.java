@@ -1,11 +1,12 @@
 package br.com.study.reactive.service;
 
 import br.com.study.reactive.domain.Anime;
+import br.com.study.reactive.dto.AnimeResponse;
+import br.com.study.reactive.dto.EpisodeResponse;
 import br.com.study.reactive.repository.AnimeRepository;
+import br.com.study.reactive.repository.EpisodeRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -14,34 +15,115 @@ import reactor.core.publisher.Mono;
 public class AnimeService {
 
     private final AnimeRepository animeRepository;
+    private final EpisodeRepository episodeRepository;
 
-    public Flux<Anime> findAll() {
-        return animeRepository.findAll();
+    public Flux<AnimeResponse> findAll() {
+        return animeRepository.findAll()
+                .flatMap(anime -> {
+                    Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+                            .flatMap(episode -> {
+                                        EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .name(episode.getName())
+                                                .title(episode.getTitle())
+                                                .build();
+
+                                        return Mono.just(episodeResponse);
+                                    }
+                            );
+
+                    return Mono.just(AnimeResponse.builder()
+                            .name(anime.getName())
+                            .episodes(episodeResponses)
+                            .build());
+
+                });
     }
 
-    public Mono<Anime> findByName(String name) {
+    public Mono<AnimeResponse> findByName(String name) {
         return animeRepository.findByName(name)
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found.")));
+                .flatMap(anime -> {
+                    Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+                            .flatMap(episode -> {
+                                        EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .name(episode.getName())
+                                                .title(episode.getTitle())
+                                                .build();
+
+                                        return Mono.just(episodeResponse);
+                                    }
+                            );
+
+                    return Mono.just(AnimeResponse.builder()
+                            .name(anime.getName())
+                            .episodes(episodeResponses)
+                            .build());
+
+                });
     }
 
-    public Mono<Anime> create(Anime anime) {
-        return animeRepository.save(anime)
-                .then(Mono.empty());
+    public Mono<AnimeResponse> create(Anime anime) {
+        return animeRepository.save(anime).flatMap(savedAnime -> {
+            Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(anime.getName())
+                    .flatMap(episode -> {
+                                EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                        .name(episode.getName())
+                                        .title(episode.getTitle())
+                                        .build();
+
+                                return Mono.just(episodeResponse);
+                            }
+                    );
+
+            return Mono.just(AnimeResponse.builder()
+                    .name(anime.getName())
+                    .episodes(episodeResponses)
+                    .build());
+        });
     }
 
-    public Mono<Anime> update(String name, Anime anime) {
-        return findByName(name)
-                .map(animeFound -> anime.withId(animeFound.getId()))
-                .flatMap(animeRepository::save);
+    public Mono<AnimeResponse> update(String name, Anime anime) {
+        return animeRepository.findByName(name)
+                .flatMap(currentAnime -> animeRepository.save(anime)
+                        .flatMap(updatedAnime -> {
+
+                            Flux<EpisodeResponse> episodeResponses = episodeRepository.findByName(currentAnime.getName())
+                                    .flatMap(episode -> {
+                                                EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                        .name(episode.getName())
+                                                        .title(episode.getTitle())
+                                                        .build();
+
+                                                return Mono.just(episodeResponse);
+                                            }
+                                    );
+
+                            return Mono.just(AnimeResponse.builder()
+                                    .name(updatedAnime.getName())
+                                    .episodes(episodeResponses)
+                                    .build());
+                        })
+                );
     }
 
-    public Mono<Anime> delete(String name) {
-        return findByName(name)
+    public Mono<AnimeResponse> delete(String name) {
+        return animeRepository.findByName(name)
                 .flatMap(anime -> {
                     animeRepository.delete(anime);
 
-                    return Mono.just(Anime.builder()
+                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
+                            .flatMap(episode -> {
+                                        EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .name(episode.getName())
+                                                .title(episode.getTitle())
+                                                .build();
+
+                                        return Mono.just(episodeResponse);
+                                    }
+                            );
+
+                    return Mono.just(AnimeResponse.builder()
                             .name(anime.getName())
+                            .episodes(episodesResponses)
                             .build());
                 });
     }

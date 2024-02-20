@@ -5,8 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.With;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @Data
 @Builder
@@ -17,5 +16,5 @@ public class AnimeResponse {
 
     private String name;
 
-    private List<EpisodeResponse> episodes;
+    private Flux<EpisodeResponse> episodes;
 }

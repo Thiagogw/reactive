@@ -1,6 +1,7 @@
 package br.com.study.reactive.controller;
 
 import br.com.study.reactive.domain.Anime;
+import br.com.study.reactive.dto.AnimeResponse;
 import br.com.study.reactive.service.AnimeService;
 import br.com.study.reactive.util.AnimeCreator;
 import org.junit.jupiter.api.Assertions;
@@ -38,10 +39,13 @@ class AnimeControllerTest {
 
     @BeforeEach
     void setup() {
-        Mockito.when(animeService.findAll()).thenReturn(Flux.just(AnimeCreator.createAnimeToBeSaved()));
-        Mockito.when(animeService.findByName(Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeFound()));
+        Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+        Anime animeToBeFound = AnimeCreator.createAnimeToBeFound();
+
+        Mockito.when(animeService.findAll()).thenReturn(Flux.just(AnimeResponse.builder().name(animeToBeSaved.getName()).build()));
+        Mockito.when(animeService.findByName(Mockito.any())).thenReturn(Mono.just(AnimeResponse.builder().name(animeToBeFound.getName()).build()));
         Mockito.when(animeService.create(Mockito.any())).thenReturn(Mono.empty());
-        Mockito.when(animeService.update(Mockito.any(), Mockito.any())).thenReturn(Mono.just(AnimeCreator.createAnimeToBeSaved()));
+        Mockito.when(animeService.update(Mockito.any(), Mockito.any())).thenReturn(Mono.just(AnimeResponse.builder().name(animeToBeSaved.getName()).build()));
         Mockito.when(animeService.delete(Mockito.any())).thenReturn(Mono.empty());
     }
 
@@ -63,25 +67,31 @@ class AnimeControllerTest {
 
     @Test
     void findAllReturnFluxOfAnimeWhenSuccessful() {
+        // Assemble
+        Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+
         // Actions
-        Flux<Anime> flux = animeController.findAll();
+        Flux<AnimeResponse> flux = animeController.findAll();
 
         // Assertions
         StepVerifier.create(flux)
                 .expectSubscription()
-                .expectNext(AnimeCreator.createAnimeToBeSaved())
+                .expectNext(AnimeResponse.builder().name(animeToBeSaved.getName()).build())
                 .verifyComplete();
     }
 
     @Test
     void findByNameReturnMonoOfAnimeWhenSuccessful() {
+        // Assemble
+        Anime animeToBeFound = AnimeCreator.createAnimeToBeFound();
+
         // Actions
-        Mono<Anime> mono = animeController.findByName("Fullmetal Alchemist");
+        Mono<AnimeResponse> mono = animeController.findByName("Fullmetal Alchemist");
 
         // Assertions
         StepVerifier.create(mono)
                 .expectSubscription()
-                .expectNext(AnimeCreator.createAnimeToBeFound())
+                .expectNext(AnimeResponse.builder().name(animeToBeFound.getName()).build())
                 .verifyComplete();
     }
 
@@ -91,7 +101,7 @@ class AnimeControllerTest {
         Anime anime = Anime.builder().name("One Piece").build();
 
         // Actions
-        Mono<Anime> mono = animeController.create(anime);
+        Mono<AnimeResponse> mono = animeController.create(anime);
 
         // Assertions
         StepVerifier.create(mono)
@@ -102,22 +112,23 @@ class AnimeControllerTest {
     @Test
     void updateReturnMonoOfAnimeWhenSuccessful() {
         // Assemble
+        Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
         Anime anime = Anime.builder().name("Fullmetal Alchemist: Brotherhood").build();
 
         // Actions
-        Mono<Anime> mono = animeController.update("Fullmetal Alchemist", anime);
+        Mono<AnimeResponse> mono = animeController.update("Fullmetal Alchemist", anime);
 
         // Assertions
         StepVerifier.create(mono)
                 .expectSubscription()
-                .expectNext(AnimeCreator.createAnimeToBeSaved())
+                .expectNext(AnimeResponse.builder().name(animeToBeSaved.getName()).build())
                 .verifyComplete();
     }
 
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
         // Actions
-        Mono<Anime> mono = animeController.delete("Fullmetal Alchemist");
+        Mono<AnimeResponse> mono = animeController.delete("Fullmetal Alchemist");
 
         // Assertions
         StepVerifier.create(mono)
