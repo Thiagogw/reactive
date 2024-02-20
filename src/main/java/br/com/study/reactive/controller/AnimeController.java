@@ -37,7 +37,7 @@ public class AnimeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> create(@RequestBody Anime anime) {
+    public Mono<Anime> create(@RequestBody Anime anime) {
         return animeService.create(anime);
     }
 
@@ -47,7 +47,7 @@ public class AnimeController {
     }
 
     @DeleteMapping("/{name}")
-    public Mono<Void> delete(@PathVariable String name) {
+    public Mono<Anime> delete(@PathVariable String name) {
         return animeService.delete(name);
     }
 }

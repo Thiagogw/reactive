@@ -91,7 +91,7 @@ class AnimeControllerTest {
         Anime anime = Anime.builder().name("One Piece").build();
 
         // Actions
-        Mono<Void> mono = animeController.create(anime);
+        Mono<Anime> mono = animeController.create(anime);
 
         // Assertions
         StepVerifier.create(mono)
@@ -117,7 +117,7 @@ class AnimeControllerTest {
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
         // Actions
-        Mono<Void> mono = animeController.delete("Fullmetal Alchemist");
+        Mono<Anime> mono = animeController.delete("Fullmetal Alchemist");
 
         // Assertions
         StepVerifier.create(mono)

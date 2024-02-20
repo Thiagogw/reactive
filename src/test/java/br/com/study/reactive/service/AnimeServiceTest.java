@@ -106,7 +106,7 @@ class AnimeServiceTest {
         Anime anime = Anime.builder().name("One Piece").build();
 
         // Actions
-        Mono<Void> mono = animeService.create(anime);
+        Mono<Anime> mono = animeService.create(anime);
 
         // Assertions
         StepVerifier.create(mono)
@@ -132,11 +132,12 @@ class AnimeServiceTest {
     @Test
     void deleteReturnMonoOfVoidWhenSuccessful() {
         // Actions
-        Mono<Void> mono = animeService.delete("Fullmetal Alchemist");
+        Mono<Anime> mono = animeService.delete("Fullmetal Alchemist");
 
         // Assertions
         StepVerifier.create(mono)
                 .expectSubscription()
+                .expectNext(AnimeCreator.createAnimeToBeSaved())
                 .verifyComplete();
     }
 }

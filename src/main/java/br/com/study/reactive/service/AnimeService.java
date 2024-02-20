@@ -24,7 +24,7 @@ public class AnimeService {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found.")));
     }
 
-    public Mono<Void> create(Anime anime) {
+    public Mono<Anime> create(Anime anime) {
         return animeRepository.save(anime)
                 .then(Mono.empty());
     }
@@ -35,8 +35,14 @@ public class AnimeService {
                 .flatMap(animeRepository::save);
     }
 
-    public Mono<Void> delete(String name) {
+    public Mono<Anime> delete(String name) {
         return findByName(name)
-                .flatMap(animeRepository::delete);
+                .flatMap(anime -> {
+                    animeRepository.delete(anime);
+
+                    return Mono.just(Anime.builder()
+                            .name(anime.getName())
+                            .build());
+                });
     }
 }
