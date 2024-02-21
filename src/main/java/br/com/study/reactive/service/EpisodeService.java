@@ -17,6 +17,7 @@ public class EpisodeService {
     public Flux<EpisodeResponse> findAll() {
         return episodeRepository.findAll()
                 .flatMap(episode -> Mono.just(EpisodeResponse.builder()
+                        .id(episode.getId())
                         .title(episode.getTitle())
                         .name(episode.getName())
                         .build())
@@ -24,8 +25,16 @@ public class EpisodeService {
     }
 
     public Flux<EpisodeResponse> findByName(String name) {
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         return episodeRepository.findByName(name)
                 .flatMap(episode -> Mono.just(EpisodeResponse.builder()
+                        .id(episode.getId())
                         .title(episode.getTitle())
                         .name(episode.getName())
                         .build())
@@ -35,6 +44,7 @@ public class EpisodeService {
     public Mono<EpisodeResponse> findByTitle(String title) {
         return episodeRepository.findByTitle(title)
                 .flatMap(episode -> Mono.just(EpisodeResponse.builder()
+                        .id(episode.getId())
                         .title(episode.getTitle())
                         .name(episode.getName())
                         .build())
@@ -44,6 +54,7 @@ public class EpisodeService {
     public Mono<EpisodeResponse> create(Episode episode) {
         return episodeRepository.save(episode)
                 .flatMap(savedEpisode -> Mono.just(EpisodeResponse.builder()
+                        .id(episode.getId())
                         .title(savedEpisode.getTitle())
                         .name(savedEpisode.getName())
                         .build()));
@@ -59,6 +70,7 @@ public class EpisodeService {
 
                     return episodeRepository.save(episode)
                             .flatMap(savedEpisode -> Mono.just(EpisodeResponse.builder()
+                                    .id(episode.getId())
                                     .title(savedEpisode.getTitle())
                                     .name(savedEpisode.getName())
                                     .build()));
@@ -71,6 +83,7 @@ public class EpisodeService {
                     episodeRepository.delete(episode);
 
                     return Mono.just(EpisodeResponse.builder()
+                            .id(episode.getId())
                             .title(episode.getTitle())
                             .name(episode.getName())
                             .build());

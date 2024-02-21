@@ -13,6 +13,8 @@ import lombok.With;
 @AllArgsConstructor
 public class EpisodeResponse {
 
+    private String id;
+
     private String name;
 
     private String title;

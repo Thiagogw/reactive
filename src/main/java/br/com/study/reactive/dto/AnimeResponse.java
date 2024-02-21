@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class AnimeResponse {
 
+    private String id;
+
     private String name;
 
     private List<EpisodeResponse> episodes;

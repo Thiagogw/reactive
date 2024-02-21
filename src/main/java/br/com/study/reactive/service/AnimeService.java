@@ -15,14 +15,15 @@ import reactor.core.publisher.Mono;
 public class AnimeService {
 
     private final AnimeRepository animeRepository;
-    private final EpisodeRepository episodeRepository;
+    private final EpisodeService episodeService;
 
     public Flux<AnimeResponse> findAll() {
         return animeRepository.findAll()
                 .flatMap(anime -> {
-                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
+                    Flux<EpisodeResponse> episodesResponses = episodeService.findByName(anime.getName())
                             .flatMap(episode -> {
                                         EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .id(episode.getId())
                                                 .name(episode.getName())
                                                 .title(episode.getTitle())
                                                 .build();
@@ -33,6 +34,7 @@ public class AnimeService {
 
                     return episodesResponses.collectList()
                             .map(episodes -> AnimeResponse.builder()
+                                    .id(anime.getId())
                                     .name(anime.getName())
                                     .episodes(episodes)
                                     .build());
@@ -42,9 +44,10 @@ public class AnimeService {
     public Mono<AnimeResponse> findByName(String name) {
         return animeRepository.findByName(name)
                 .flatMap(anime -> {
-                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
+                    Flux<EpisodeResponse> episodesResponses = episodeService.findByName(anime.getName())
                             .flatMap(episode -> {
                                         EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .id(episode.getId())
                                                 .name(episode.getName())
                                                 .title(episode.getTitle())
                                                 .build();
@@ -55,6 +58,7 @@ public class AnimeService {
 
                     return episodesResponses.collectList()
                             .map(episodes -> AnimeResponse.builder()
+                                    .id(anime.getId())
                                     .name(anime.getName())
                                     .episodes(episodes)
                                     .build());
@@ -63,9 +67,10 @@ public class AnimeService {
 
     public Mono<AnimeResponse> create(Anime anime) {
         return animeRepository.save(anime).flatMap(savedAnime -> {
-            Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
+            Flux<EpisodeResponse> episodesResponses = episodeService.findByName(anime.getName())
                     .flatMap(episode -> {
                                 EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                        .id(episode.getId())
                                         .name(episode.getName())
                                         .title(episode.getTitle())
                                         .build();
@@ -76,6 +81,7 @@ public class AnimeService {
 
             return episodesResponses.collectList()
                     .map(episodes -> AnimeResponse.builder()
+                            .id(anime.getId())
                             .name(anime.getName())
                             .episodes(episodes)
                             .build());
@@ -87,9 +93,10 @@ public class AnimeService {
                 .flatMap(currentAnime -> animeRepository.save(anime)
                         .flatMap(updatedAnime -> {
 
-                            Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(currentAnime.getName())
+                            Flux<EpisodeResponse> episodesResponses = episodeService.findByName(currentAnime.getName())
                                     .flatMap(episode -> {
                                                 EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                        .id(episode.getId())
                                                         .name(episode.getName())
                                                         .title(episode.getTitle())
                                                         .build();
@@ -100,6 +107,7 @@ public class AnimeService {
 
                             return episodesResponses.collectList()
                                     .map(episodes -> AnimeResponse.builder()
+                                            .id(anime.getId())
                                             .name(anime.getName())
                                             .episodes(episodes)
                                             .build());
@@ -112,9 +120,10 @@ public class AnimeService {
                 .flatMap(anime -> {
                     animeRepository.delete(anime);
 
-                    Flux<EpisodeResponse> episodesResponses = episodeRepository.findByName(anime.getName())
+                    Flux<EpisodeResponse> episodesResponses = episodeService.findByName(anime.getName())
                             .flatMap(episode -> {
                                         EpisodeResponse episodeResponse = EpisodeResponse.builder()
+                                                .id(episode.getId())
                                                 .name(episode.getName())
                                                 .title(episode.getTitle())
                                                 .build();
@@ -125,6 +134,7 @@ public class AnimeService {
 
                     return episodesResponses.collectList()
                             .map(episodes -> AnimeResponse.builder()
+                                    .id(anime.getId())
                                     .name(anime.getName())
                                     .episodes(episodes)
                                     .build());
